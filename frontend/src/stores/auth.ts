@@ -2,9 +2,13 @@ import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { getToken, setToken, removeToken, getUserInfo, setUserInfo, removeUserInfo } from '@/utils/storage';
 import { authApi } from '@/api/auth';
-import type { User } from '@/types/auth';
 
-export type { User } from '@/types/auth';
+export interface User {
+  id: number;
+  username: string;
+  email: string;
+  avatar?: string;
+}
 
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(getToken());

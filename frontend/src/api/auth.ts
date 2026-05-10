@@ -1,5 +1,23 @@
 import api, { type ApiResponse } from './request';
-import type { User, AuthResponse, LoginParams, RegisterParams } from '@/types/auth';
+import type { User } from '@/stores/auth';
+
+interface AuthResponse {
+  user: User;
+  token: string;
+  expires_in?: number;
+}
+
+interface LoginParams {
+  username: string;
+  password: string;
+}
+
+interface RegisterParams {
+  username: string;
+  email: string;
+  password: string;
+  password_confirm: string;
+}
 
 export const authApi = {
   login: (data: LoginParams) => {
