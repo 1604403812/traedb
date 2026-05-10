@@ -47,4 +47,4 @@ export const authApi = {
   },
 };
 
-export type { User, AuthResponse, LoginParams, RegisterParams };
+export type { User as UserInfo, AuthResponse, LoginParams, RegisterParams };
