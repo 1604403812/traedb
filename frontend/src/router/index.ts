@@ -1,5 +1,4 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router';
-import { useAuthStore } from '@/stores/auth';
 import type { MenuProps } from 'ant-design-vue';
 
 export interface AppRouteMeta {
@@ -168,17 +167,24 @@ const router = createRouter({
   }
 });
 
+let isAuthChecked = false;
+
 router.beforeEach(async (to, _from, next) => {
-  const authStore = useAuthStore();
-  
-  if (to.meta.requiresAuth && !authStore.isAuthenticated) {
-    next({ name: 'Login', query: { redirect: to.fullPath } });
-    return;
-  }
-  
-  if (to.name === 'Login' && authStore.isAuthenticated) {
-    next({ name: 'Dashboard' });
-    return;
+  if (!isAuthChecked) {
+    isAuthChecked = true;
+    const { useAuthStore } = await import('@/stores/auth');
+    const authStore = useAuthStore();
+    const isAuthenticated = !!authStore.token;
+    
+    if (to.meta.requiresAuth && !isAuthenticated) {
+      next({ name: 'Login', query: { redirect: to.fullPath } });
+      return;
+    }
+    
+    if (to.name === 'Login' && isAuthenticated) {
+      next({ name: 'Dashboard' });
+      return;
+    }
   }
   
   if (to.meta.title) {
