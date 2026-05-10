@@ -58,8 +58,4 @@ export const useThemeStore = defineStore('theme', () => {
     toggleTheme,
     init,
   };
-}, {
-  persist: {
-    paths: ['preference'],
-  },
 });

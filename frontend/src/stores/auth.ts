@@ -97,8 +97,4 @@ export const useAuthStore = defineStore('auth', () => {
     refreshToken,
     fetchUserInfo,
   };
-}, {
-  persist: {
-    paths: ['token'],
-  },
 });
