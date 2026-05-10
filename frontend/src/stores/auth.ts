@@ -4,8 +4,6 @@ import { getToken, setToken, removeToken, getUserInfo, setUserInfo, removeUserIn
 import { authApi } from '@/api/auth';
 import type { UserInfo } from '@/api/auth';
 
-export type { UserInfo } from '@/api/auth';
-
 export const useAuthStore = defineStore('auth', () => {
   const token = ref<string | null>(getToken());
   const user = ref<UserInfo | null>(getUserInfo());
