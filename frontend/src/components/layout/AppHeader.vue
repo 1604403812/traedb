@@ -35,13 +35,13 @@
         <a-dropdown :trigger="['click']" placement="bottomRight">
           <button class="app-header__user-btn">
             <a-avatar :size="32" class="app-header__avatar">
-              <template #icon><User :size="18" /></template>
+              <template #icon><UserIcon :size="18" /></template>
             </a-avatar>
           </button>
           <template #overlay>
             <a-menu>
               <a-menu-item key="profile">
-                <User :size="16" style="margin-right: 8px" />
+                <UserIcon :size="16" style="margin-right: 8px" />
                 个人资料
               </a-menu-item>
               <a-menu-item key="settings" @click="$router.push('/settings')">
@@ -66,7 +66,7 @@ import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useThemeStore } from '@/stores/theme';
-import { Home, AudioLines, BookOpen, Microphone, Palette, Cloud, Sun, Moon, User, Gear, SignOut } from '@phosphor-icons/vue';
+import { Home, AudioLines, BookOpen, Microphone, Palette, Cloud, Sun, Moon, User as UserIcon, Gear, SignOut } from '@phosphor-icons/vue';
 import type { Component } from 'vue';
 
 interface NavItem {

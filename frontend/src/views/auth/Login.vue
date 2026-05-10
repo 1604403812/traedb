@@ -18,7 +18,7 @@
             size="large"
           >
             <template #prefix>
-              <User :size="18" class="login-form__input-icon" />
+              <UserIcon :size="18" class="login-form__input-icon" />
             </template>
           </a-input>
         </a-form-item>
@@ -65,7 +65,7 @@
 import { reactive } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { message } from 'ant-design-vue';
-import { User, Lock } from '@phosphor-icons/vue';
+import { User as UserIcon, Lock } from '@phosphor-icons/vue';
 import { useAuthStore } from '@/stores/auth';
 
 const router = useRouter();

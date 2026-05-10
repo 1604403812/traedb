@@ -2,7 +2,7 @@
   <aside class="app-sidebar">
     <div class="app-sidebar__user">
       <a-avatar :size="48" class="app-sidebar__avatar">
-        <template #icon><User :size="24" /></template>
+        <template #icon><UserIcon :size="24" /></template>
       </a-avatar>
       <div class="app-sidebar__user-info">
         <span class="app-sidebar__username">{{ authStore.user?.username || '访客' }}</span>
@@ -65,7 +65,7 @@ import { computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useAuthStore } from '@/stores/auth';
 import { useBeadStore } from '@/stores/bead';
-import { Home, AudioLines, BookOpen, Microphone, Palette, Cloud, User, Plus, ArrowsClockwise } from '@phosphor-icons/vue';
+import { Home, AudioLines, BookOpen, Microphone, Palette, Cloud, User as UserIcon, Plus, ArrowsClockwise } from '@phosphor-icons/vue';
 import type { Component } from 'vue';
 import type { MenuProps } from 'ant-design-vue';
 
