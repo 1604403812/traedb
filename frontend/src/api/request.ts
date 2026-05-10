@@ -1,7 +1,5 @@
 import axios, { type AxiosInstance, type AxiosError, type InternalAxiosRequestConfig } from 'axios';
 import { getToken, removeToken } from '@/utils/storage';
-import { useAuthStore } from '@/stores/auth';
-import { useRouter } from 'vue-router';
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || '/api';
 
@@ -37,6 +35,7 @@ api.interceptors.response.use(
       originalRequest._retry = true;
       
       try {
+        const { useAuthStore } = await import('@/stores/auth');
         const authStore = useAuthStore();
         await authStore.refreshToken();
         
@@ -47,6 +46,7 @@ api.interceptors.response.use(
         
         return api(originalRequest);
       } catch (refreshError) {
+        const { useRouter } = await import('vue-router');
         const router = useRouter();
         removeToken();
         router.push('/auth/login');
