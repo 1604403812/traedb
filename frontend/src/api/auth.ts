@@ -1,5 +1,11 @@
 import api, { type ApiResponse } from './request';
-import type { User } from '@/stores/auth';
+
+interface User {
+  id: number;
+  username: string;
+  email: string;
+  avatar?: string;
+}
 
 interface AuthResponse {
   user: User;
@@ -40,3 +46,5 @@ export const authApi = {
     return api.get<ApiResponse<User>>('/v1/auth/me');
   },
 };
+
+export type { User, AuthResponse, LoginParams, RegisterParams };
