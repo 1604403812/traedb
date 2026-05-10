@@ -1,6 +1,6 @@
 import api, { type ApiResponse } from './request';
 
-interface User {
+interface UserInfo {
   id: number;
   username: string;
   email: string;
@@ -8,7 +8,7 @@ interface User {
 }
 
 interface AuthResponse {
-  user: User;
+  user: UserInfo;
   token: string;
   expires_in?: number;
 }
@@ -43,8 +43,8 @@ export const authApi = {
   },
   
   getUserInfo: () => {
-    return api.get<ApiResponse<User>>('/v1/auth/me');
+    return api.get<ApiResponse<UserInfo>>('/v1/auth/me');
   },
 };
 
-export type { User as UserInfo, AuthResponse, LoginParams, RegisterParams };
+export type { UserInfo, AuthResponse, LoginParams, RegisterParams };
