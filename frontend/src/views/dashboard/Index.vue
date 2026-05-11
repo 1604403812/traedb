@@ -1,366 +1,93 @@
+<script setup lang="ts">
+import { primaryNav } from '../../router/navigation'
+import GlassCard from '../../components/common/GlassCard.vue'
+import PageTitle from '../../components/common/PageTitle.vue'
+import StatCard from '../../components/common/StatCard.vue'
+
+const stats = [
+  { label: '音声收藏', value: '45', hint: '最近同步 8 条元信息', accent: 'var(--module-audio)' },
+  { label: '阅读进度', value: '12 / 50', hint: '3 本小说处于阅读中', accent: 'var(--module-novel)' },
+  { label: '低库存提醒', value: '5', hint: '重点关注白色、黑色和蓝色', accent: 'var(--module-beads)' },
+  { label: '云端容量', value: '5.2 GB', hint: 'OneDrive / Alist 已接入', accent: 'var(--module-drive)' },
+]
+
+const recentActivity = [
+  { title: 'AUDIO-019 午夜列车', detail: '烟玫瑰色主题，播放进度 75%', tag: '音声' },
+  { title: '《潮汐与灯塔》', detail: '阅读至第 15 章，夜间主题已保存', tag: '小说' },
+  { title: 'TWICE - READY TO BE', detail: '专辑详情页可继续扩展歌曲列表', tag: 'Wiki' },
+]
+</script>
+
 <template>
-  <div class="dashboard">
-    <PageTitle title="仪表盘" :icon="House">
-      <template #actions>
-        <a-button type="primary" @click="showAddModal = true">
-          <template #icon><Plus :size="16" /></template>
-          添加内容
-        </a-button>
-      </template>
-    </PageTitle>
+  <div class="page-stack">
+    <PageTitle
+      eyebrow="Dashboard"
+      title="下午好，收藏家"
+      description="新的前端框架以莫兰迪配色、玻璃容器与模块化路由为骨架，已经适合作为后续业务开发底座。"
+    />
 
-    <div class="dashboard__greeting">
-      <h2>{{ greeting }}, {{ authStore.user?.username || '收藏家' }}</h2>
-      <p>{{ currentDate }}</p>
-    </div>
+    <GlassCard class="hero-card" accent="var(--module-wiki)">
+      <div class="hero-card__content">
+        <div>
+          <p class="eyebrow">系统概览</p>
+          <h2>数字生活收藏馆</h2>
+          <p class="page-subtitle">
+            统一管理音声、小说、TWICE 资料、拼豆库存与云盘文件，所有模块共享同一套主题变量、布局与响应式导航。
+          </p>
+        </div>
+        <div class="hero-pills">
+          <RouterLink v-for="item in primaryNav" :key="item.key" :to="item.path" class="module-pill">
+            {{ item.label }}
+          </RouterLink>
+        </div>
+      </div>
+    </GlassCard>
 
-    <section class="dashboard__stats">
+    <section class="stats-grid">
       <StatCard
-        :value="45"
-        label="音声收藏"
-        :icon="MusicNotes"
-        module="audio"
-        clickable
-        @click="$router.push('/audio')"
-      />
-      <StatCard
-        :value="readingProgress"
-        label="阅读进度"
-        format="percent"
-        :icon="BookOpen"
-        module="novel"
-        clickable
-        @click="$router.push('/novel')"
-      />
-      <StatCard
-        :value="5"
-        label="低库存提醒"
-        :icon="Warning"
-        module="bead"
-        clickable
-        @click="$router.push('/bead')"
+        v-for="item in stats"
+        :key="item.label"
+        :label="item.label"
+        :value="item.value"
+        :hint="item.hint"
+        :accent="item.accent"
       />
     </section>
 
-    <div class="dashboard__content">
-      <section class="dashboard__section">
-        <div class="dashboard__section-header">
-          <h3>最近添加</h3>
-          <router-link to="/audio">查看全部</router-link>
+    <section class="dual-grid">
+      <GlassCard accent="var(--module-audio)">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Recent</p>
+            <h2>最近添加</h2>
+          </div>
+          <RouterLink to="/audio" class="text-link">查看音声</RouterLink>
         </div>
-        
-        <div class="dashboard__modules">
-          <router-link
-            v-for="module in modules"
-            :key="module.path"
-            :to="module.path"
-            class="dashboard__module-card"
-            :class="`dashboard__module-card--${module.module}`"
-          >
-            <div class="dashboard__module-icon">
-              <component :is="module.icon" :size="28" weight="regular" />
+        <div class="timeline-list">
+          <article v-for="item in recentActivity" :key="item.title" class="timeline-item">
+            <span class="timeline-item__tag">{{ item.tag }}</span>
+            <div>
+              <h3>{{ item.title }}</h3>
+              <p>{{ item.detail }}</p>
             </div>
-            <span class="dashboard__module-label">{{ module.label }}</span>
-          </router-link>
+          </article>
         </div>
-      </section>
+      </GlassCard>
 
-      <section class="dashboard__section">
-        <div class="dashboard__section-header">
-          <h3>最近播放</h3>
-        </div>
-        
-        <div class="dashboard__recent-list">
-          <div v-for="item in recentPlays" :key="item.id" class="dashboard__recent-item">
-            <div class="dashboard__recent-cover">
-              <img v-if="item.cover" :src="item.cover" :alt="item.title" />
-              <MusicNotes v-else :size="20" />
-            </div>
-            <div class="dashboard__recent-info">
-              <span class="dashboard__recent-title">{{ item.title }}</span>
-              <span class="dashboard__recent-subtitle">{{ item.subtitle }}</span>
-            </div>
-            <span class="dashboard__recent-time">{{ item.time }}</span>
+      <GlassCard accent="var(--module-drive)">
+        <div class="section-head">
+          <div>
+            <p class="eyebrow">Architecture</p>
+            <h2>前端框架特性</h2>
           </div>
         </div>
-      </section>
-    </div>
+        <ul class="feature-list">
+          <li>基于 Vue 3、Vite、TypeScript、Pinia 与 Vue Router 重建。</li>
+          <li>接入 Ant Design Vue 主题定制，与文档中的莫兰迪色板一致。</li>
+          <li>支持默认布局、认证布局与阅读器空白布局。</li>
+          <li>已预留模块页、API 封装、类型定义与主题状态管理目录。</li>
+        </ul>
+      </GlassCard>
+    </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { computed, ref, type Component } from 'vue';
-import PageTitle from '@/components/layout/PageTitle.vue';
-import StatCard from '@/components/common/StatCard.vue';
-import { useAuthStore } from '@/stores/auth';
-import { House, MusicNotes, BookOpen, Microphone, Palette, Cloud, Warning, Plus } from '@phosphor-icons/vue';
-import dayjs from 'dayjs';
-
-const authStore = useAuthStore();
-const showAddModal = ref(false);
-
-const greeting = computed(() => {
-  const hour = new Date().getHours();
-  if (hour < 6) return '凌晨好';
-  if (hour < 9) return '早上好';
-  if (hour < 12) return '上午好';
-  if (hour < 14) return '中午好';
-  if (hour < 18) return '下午好';
-  if (hour < 22) return '晚上好';
-  return '夜深了';
-});
-
-const currentDate = computed(() => {
-  return dayjs().format('YYYY年M月D日 dddd');
-});
-
-const readingProgress = computed(() => 24);
-
-interface Module {
-  path: string;
-  label: string;
-  icon: Component;
-  module: 'audio' | 'novel' | 'wiki' | 'bead' | 'drive';
-}
-
-const modules: Module[] = [
-  { path: '/audio', label: '音声', icon: MusicNotes, module: 'audio' },
-  { path: '/novel', label: '小说', icon: BookOpen, module: 'novel' },
-  { path: '/wiki', label: 'TWICE', icon: Microphone, module: 'wiki' },
-  { path: '/bead', label: '拼豆', icon: Palette, module: 'bead' },
-  { path: '/drive', label: '云盘', icon: Cloud, module: 'drive' },
-];
-
-interface RecentPlay {
-  id: number;
-  title: string;
-  subtitle: string;
-  cover?: string;
-  time: string;
-  progress?: number;
-}
-
-const recentPlays: RecentPlay[] = [
-  {
-    id: 1,
-    title: '音声标题',
-    subtitle: '社团名 · 声优',
-    cover: '',
-    time: '3分钟前',
-  },
-  {
-    id: 2,
-    title: '小说标题',
-    subtitle: '作者名',
-    time: '昨天',
-    progress: 75,
-  },
-];
-</script>
-
-<style lang="scss" scoped>
-.dashboard {
-  max-width: 1200px;
-  margin: 0 auto;
-  
-  &__greeting {
-    margin-bottom: 32px;
-    
-    h2 {
-      font-size: var(--font-size-xl);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-      margin: 0 0 4px;
-    }
-    
-    p {
-      font-size: var(--font-size-sm);
-      color: var(--color-text-muted);
-      margin: 0;
-    }
-  }
-  
-  &__stats {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 40px;
-  }
-  
-  &__content {
-    display: grid;
-    gap: 32px;
-  }
-  
-  &__section {
-    background: var(--glass-bg);
-    backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturation));
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
-    padding: 24px;
-    box-shadow: var(--shadow-sm);
-  }
-  
-  &__section-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    margin-bottom: 20px;
-    
-    h3 {
-      font-size: var(--font-size-md);
-      font-weight: var(--font-weight-semibold);
-      color: var(--color-text-primary);
-      margin: 0;
-    }
-    
-    a {
-      font-size: var(--font-size-sm);
-      color: var(--color-primary);
-      
-      &:hover {
-        color: var(--color-primary-hover);
-      }
-    }
-  }
-  
-  &__modules {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
-    
-    @media (max-width: 768px) {
-      grid-template-columns: repeat(3, 1fr);
-    }
-  }
-  
-  &__module-card {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 20px 12px;
-    border-radius: var(--radius-md);
-    text-decoration: none;
-    transition: all var(--transition-bounce);
-    
-    &:hover {
-      transform: translateY(-2px);
-    }
-    
-    &--audio {
-      background: var(--color-audio-bg);
-      color: var(--color-audio);
-      
-      &:hover { background: rgba(155, 142, 138, 0.15); }
-    }
-    
-    &--novel {
-      background: var(--color-novel-bg);
-      color: var(--color-novel);
-      
-      &:hover { background: rgba(138, 154, 139, 0.15); }
-    }
-    
-    &--wiki {
-      background: var(--color-wiki-bg);
-      color: var(--color-wiki);
-      
-      &:hover { background: rgba(142, 154, 168, 0.15); }
-    }
-    
-    &--bead {
-      background: var(--color-bead-bg);
-      color: var(--color-bead);
-      
-      &:hover { background: rgba(170, 155, 142, 0.15); }
-    }
-    
-    &--drive {
-      background: var(--color-drive-bg);
-      color: var(--color-drive);
-      
-      &:hover { background: rgba(139, 154, 168, 0.15); }
-    }
-  }
-  
-  &__module-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  &__module-label {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-  }
-  
-  &__recent-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  &__recent-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px;
-    border-radius: var(--radius-md);
-    transition: background var(--transition-fast);
-    
-    &:hover {
-      background: var(--color-primary-bg);
-    }
-  }
-  
-  &__recent-cover {
-    width: 48px;
-    height: 48px;
-    border-radius: var(--radius-sm);
-    background: var(--color-bg-secondary);
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-    
-    img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
-  
-  &__recent-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  
-  &__recent-title {
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    color: var(--color-text-primary);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  
-  &__recent-subtitle {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-secondary);
-  }
-  
-  &__recent-time {
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    flex-shrink: 0;
-  }
-}
-</style>

@@ -1,15 +1,6 @@
 <template>
-  <div class="blank-layout">
+  <div class="reader-shell">
+    <div class="ambient ambient--one" />
     <slot />
   </div>
 </template>
-
-<script setup lang="ts">
-</script>
-
-<style lang="scss" scoped>
-.blank-layout {
-  min-height: 100vh;
-  background: var(--color-bg-primary);
-}
-</style>

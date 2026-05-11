@@ -1,61 +1,76 @@
-import { defineStore } from 'pinia';
-import { ref, computed, watch } from 'vue';
+import { computed, ref, watch } from 'vue'
+import { defineStore } from 'pinia'
 
-export type ThemeMode = 'light' | 'dark' | 'system';
+type ThemeMode = 'system' | 'light' | 'dark'
+type ThemeValue = 'light' | 'dark'
+
+const STORAGE_KEY = 'solo.personal.app.theme'
 
 export const useThemeStore = defineStore('theme', () => {
-  const preference = ref<ThemeMode>('system');
-  
-  const systemPrefersDark = ref(false);
-  
-  const updateSystemPreference = () => {
-    if (typeof window !== 'undefined') {
-      systemPrefersDark.value = window.matchMedia('(prefers-color-scheme: dark)').matches;
+  const mode = ref<ThemeMode>('system')
+  const systemTheme = ref<ThemeValue>('light')
+  const resolvedTheme = computed<ThemeValue>(() =>
+    mode.value === 'system' ? systemTheme.value : mode.value,
+  )
+
+  function syncSystemTheme() {
+    if (typeof window === 'undefined') {
+      return
     }
-  };
-  
-  const isDark = computed(() => {
-    if (preference.value === 'system') {
-      return systemPrefersDark.value;
+
+    systemTheme.value = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
+  }
+
+  function applyTheme(theme: ThemeValue) {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+  }
+
+  function setMode(nextMode: ThemeMode) {
+    mode.value = nextMode
+    localStorage.setItem(STORAGE_KEY, nextMode)
+  }
+
+  function cycleTheme() {
+    const order: ThemeMode[] = ['system', 'light', 'dark']
+    const currentIndex = order.indexOf(mode.value)
+    const nextIndex = (currentIndex + 1) % order.length
+    setMode(order[nextIndex])
+  }
+
+  function initTheme() {
+    if (typeof window === 'undefined') {
+      return
     }
-    return preference.value === 'dark';
-  });
-  
-  const setTheme = (mode: ThemeMode) => {
-    preference.value = mode;
-  };
-  
-  const toggleTheme = () => {
-    if (preference.value === 'dark' || (preference.value === 'system' && systemPrefersDark.value)) {
-      preference.value = 'light';
-    } else {
-      preference.value = 'dark';
+
+    const savedMode = localStorage.getItem(STORAGE_KEY)
+    if (savedMode === 'system' || savedMode === 'light' || savedMode === 'dark') {
+      mode.value = savedMode
     }
-  };
-  
-  const applyTheme = () => {
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
+
+    syncSystemTheme()
+
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const handleChange = () => {
+      syncSystemTheme()
     }
-  };
-  
-  const init = () => {
-    updateSystemPreference();
-    applyTheme();
-    
-    if (typeof window !== 'undefined') {
-      const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-      mediaQuery.addEventListener('change', updateSystemPreference);
-    }
-  };
-  
-  watch(isDark, applyTheme);
-  
+
+    mediaQuery.addEventListener('change', handleChange)
+
+    watch(
+      resolvedTheme,
+      (value) => {
+        applyTheme(value)
+      },
+      { immediate: true },
+    )
+  }
+
   return {
-    preference,
-    isDark,
-    setTheme,
-    toggleTheme,
-    init,
-  };
-});
+    mode,
+    resolvedTheme,
+    setMode,
+    cycleTheme,
+    initTheme,
+  }
+})

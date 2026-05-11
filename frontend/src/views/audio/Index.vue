@@ -1,215 +1,77 @@
+<script setup lang="ts">
+import { computed, ref } from 'vue'
+import GlassCard from '../../components/common/GlassCard.vue'
+import MediaCard from '../../components/common/MediaCard.vue'
+import PageTitle from '../../components/common/PageTitle.vue'
+import SearchInput from '../../components/common/SearchInput.vue'
+
+const query = ref('')
+const filters = ['全部', '已收藏', '已评分', 'BL', '治愈', '社团']
+
+const audioItems = [
+  { id: 1, title: '月夜航线', subtitle: '社团 A · 声优白河', meta: '4.8 分 · 最近播放 3 分钟前', badge: 'AUDIO-001' },
+  { id: 2, title: '静海旅馆', subtitle: '社团 B · 声优凛音', meta: '5.0 分 · 收藏夹置顶', badge: 'AUDIO-014' },
+  { id: 3, title: '晚风寄存处', subtitle: '社团 C · 双人主演', meta: '4.6 分 · 已同步字幕', badge: 'AUDIO-019' },
+  { id: 4, title: '晨曦花房', subtitle: '社团 D · 轻疗愈系', meta: '4.3 分 · 标签 6 个', badge: 'AUDIO-024' },
+  { id: 5, title: '雨幕书店', subtitle: '社团 E · 店员系列', meta: '4.9 分 · 正在循环播放', badge: 'AUDIO-028' },
+  { id: 6, title: '玻璃回廊', subtitle: '社团 F · 悬疑系', meta: '4.5 分 · 最近新增', badge: 'AUDIO-032' },
+]
+
+const filteredItems = computed(() =>
+  audioItems.filter((item) => `${item.title}${item.subtitle}`.toLowerCase().includes(query.value.toLowerCase())),
+)
+</script>
+
 <template>
-  <div class="page-view">
-    <PageTitle title="音声管理" :icon="AudioLines">
+  <div class="page-stack">
+    <PageTitle
+      eyebrow="Audio"
+      title="音声收藏"
+      description="列表页采用 3 列到 1 列自适应卡片网格，并预留搜索、筛选、排序与详情跳转骨架。"
+    >
       <template #actions>
-        <a-button @click="handleSync">
-          <template #icon><ArrowsClockwise :size="16" /></template>
-          同步
-        </a-button>
-        <a-button type="primary" @click="showAddModal = true">
-          <template #icon><Plus :size="16" /></template>
-          添加
-        </a-button>
+        <a-space>
+          <a-button>同步云盘</a-button>
+          <a-button type="primary">添加音声</a-button>
+        </a-space>
       </template>
     </PageTitle>
 
-    <div class="page-view__filters">
-      <SearchInput
-        v-model="searchQuery"
-        placeholder="搜索音声..."
-        class="page-view__search"
-        @search="handleSearch"
-      />
-      
-      <div class="page-view__filter-tags">
-        <a-tag
-          v-for="tag in filterTags"
-          :key="tag.value"
-          :color="tag.color"
-          :class="{ 'is-active': activeFilters.includes(tag.value) }"
-          @click="toggleFilter(tag.value)"
-        >
-          {{ tag.label }}
-        </a-tag>
+    <GlassCard accent="var(--module-audio)">
+      <div class="toolbar-row">
+        <SearchInput v-model="query" placeholder="搜索音声标题、声优或社团" />
+        <div class="pill-row">
+          <span v-for="item in filters" :key="item" class="module-pill">{{ item }}</span>
+        </div>
       </div>
-    </div>
+    </GlassCard>
 
-    <div class="page-view__grid">
+    <section class="media-grid media-grid--three">
       <MediaCard
-        v-for="(item, index) in audioList"
+        v-for="item in filteredItems"
         :key="item.id"
-        type="audio"
         :title="item.title"
-        :subtitle="`${item.circle} · ${item.cv}`"
-        :cover="item.cover_url"
-        :rating="item.rating"
+        :subtitle="item.subtitle"
+        :meta="item.meta"
+        :badge="item.badge"
+        category="音声"
+        accent="var(--module-audio)"
         :to="`/audio/${item.id}`"
-        :style="{ animationDelay: `${index * 50}ms` }"
-        class="page-view__card"
       />
-    </div>
+    </section>
 
-    <div v-if="loading" class="page-view__loading">
-      <LoadingSpinner text="加载中..." />
-    </div>
-
-    <EmptyState
-      v-else-if="!loading && audioList.length === 0"
-      title="还没有音声"
-      description="点击右上角添加你的第一个音声收藏"
-    >
-      <template #action>
-        <a-button type="primary" @click="showAddModal = true">
-          <template #icon><Plus :size="16" /></template>
-          添加音声
-        </a-button>
-      </template>
-    </EmptyState>
-
-    <div v-if="audioList.length > 0" class="page-view__pagination">
-      <a-pagination
-        v-model:current="currentPage"
-        :total="total"
-        :page-size="pageSize"
-        show-quick-jumper
-        @change="handlePageChange"
-      />
-    </div>
+    <GlassCard accent="var(--module-audio)">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Structure</p>
+          <h2>该模块已具备的框架能力</h2>
+        </div>
+      </div>
+      <ul class="feature-list">
+        <li>搜索框、筛选胶囊、操作按钮与卡片网格统一纳入设计系统。</li>
+        <li>详情页、播放器、标签与评分逻辑可以在当前骨架上直接扩展。</li>
+        <li>视觉表现遵循烟玫瑰模块色，并在 hover 时上浮发光。</li>
+      </ul>
+    </GlassCard>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import PageTitle from '@/components/layout/PageTitle.vue';
-import SearchInput from '@/components/common/SearchInput.vue';
-import MediaCard from '@/components/common/MediaCard.vue';
-import EmptyState from '@/components/common/EmptyState.vue';
-import LoadingSpinner from '@/components/common/LoadingSpinner.vue';
-import { AudioLines, Plus, ArrowsClockwise } from '@phosphor-icons/vue';
-
-const searchQuery = ref('');
-const activeFilters = ref<string[]>([]);
-const currentPage = ref(1);
-const pageSize = ref(20);
-const total = ref(0);
-const loading = ref(false);
-const showAddModal = ref(false);
-
-interface AudioItem {
-  id: number;
-  title: string;
-  circle: string;
-  cv: string;
-  cover_url?: string;
-  rating: number;
-  is_favorite: boolean;
-}
-
-const audioList = ref<AudioItem[]>([]);
-
-const filterTags = [
-  { label: '收藏', value: 'favorite', color: 'pink' },
-  { label: '已评分', value: 'rated', color: 'gold' },
-];
-
-const handleSearch = (query: string) => {
-  console.log('Search:', query);
-};
-
-const toggleFilter = (filter: string) => {
-  const index = activeFilters.value.indexOf(filter);
-  if (index === -1) {
-    activeFilters.value.push(filter);
-  } else {
-    activeFilters.value.splice(index, 1);
-  }
-};
-
-const handlePageChange = (page: number) => {
-  currentPage.value = page;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-};
-
-const handleSync = () => {
-  console.log('Sync');
-};
-
-onMounted(() => {
-  audioList.value = [];
-});
-</script>
-
-<style lang="scss" scoped>
-.page-view {
-  max-width: 1400px;
-  margin: 0 auto;
-  
-  &__filters {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  &__search {
-    max-width: 400px;
-  }
-  
-  &__filter-tags {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    
-    :deep(.ant-tag) {
-      cursor: pointer;
-      border-radius: var(--radius-full);
-      padding: 4px 12px;
-      transition: all var(--transition-fast);
-      
-      &:hover, &.is-active {
-        opacity: 1;
-        transform: scale(1.02);
-      }
-    }
-  }
-  
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-  
-  &__card {
-    animation: fadeInUp 0.4s ease-out both;
-  }
-  
-  &__loading {
-    display: flex;
-    justify-content: center;
-    padding: 64px;
-  }
-  
-  &__pagination {
-    display: flex;
-    justify-content: center;
-    padding: 24px 0;
-    
-    :deep(.ant-pagination-item-active) {
-      background: var(--color-primary);
-      border-color: var(--color-primary);
-    }
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-</style>

@@ -1,173 +1,54 @@
+<script setup lang="ts">
+import GlassCard from '../../components/common/GlassCard.vue'
+import MediaCard from '../../components/common/MediaCard.vue'
+import PageTitle from '../../components/common/PageTitle.vue'
+
+const novels = [
+  { id: 1, title: '潮汐与灯塔', subtitle: '作者：海岚', meta: '阅读中 · 78%', badge: '连载中' },
+  { id: 2, title: '玻璃动物园', subtitle: '作者：森音', meta: '未读 · 32 万字', badge: '新导入' },
+  { id: 3, title: '云层下的告白', subtitle: '作者：浅羽', meta: '已读完 · 评分 4.7', badge: '完结' },
+  { id: 4, title: '晚香玉车站', subtitle: '作者：雪岛', meta: '阅读中 · 24%', badge: 'TXT' },
+]
+</script>
+
 <template>
-  <div class="page-view">
-    <PageTitle title="小说书架" :icon="BookOpen">
+  <div class="page-stack">
+    <PageTitle
+      eyebrow="Novel"
+      title="小说书架"
+      description="书架页预留状态筛选、平台标签、阅读进度与在线阅读器跳转。"
+    >
       <template #actions>
-        <a-button @click="handleImport">
-          <template #icon><Upload :size="16" /></template>
-          导入
-        </a-button>
-        <a-button type="primary" @click="showAddModal = true">
-          <template #icon><Plus :size="16" /></template>
-          添加
-        </a-button>
+        <a-space>
+          <a-button>导入 TXT</a-button>
+          <a-button type="primary">新增书目</a-button>
+        </a-space>
       </template>
     </PageTitle>
 
-    <div class="page-view__filters">
-      <SearchInput
-        v-model="searchQuery"
-        placeholder="搜索小说..."
-        class="page-view__search"
-      />
-      
-      <div class="page-view__status-tabs">
-        <a-tag
-          v-for="status in statusFilters"
-          :key="status.value"
-          :class="{ 'is-active': activeStatus === status.value }"
-          @click="activeStatus = status.value"
-        >
-          {{ status.label }} ({{ status.count }})
-        </a-tag>
+    <GlassCard accent="var(--module-novel)">
+      <div class="pill-row">
+        <span class="module-pill">全部</span>
+        <span class="module-pill">未读</span>
+        <span class="module-pill">阅读中</span>
+        <span class="module-pill">已读完</span>
+        <span class="module-pill">作者</span>
+        <span class="module-pill">平台</span>
       </div>
-    </div>
+    </GlassCard>
 
-    <div class="page-view__grid">
+    <section class="media-grid media-grid--four">
       <MediaCard
-        v-for="(item, index) in novelList"
+        v-for="item in novels"
         :key="item.id"
-        type="novel"
         :title="item.title"
-        :subtitle="item.author"
-        :cover="item.cover_url"
-        :progress="item.status === 'reading' ? item.progress : undefined"
-        :rating="item.rating"
-        :to="`/novel/${item.id}`"
-        :style="{ animationDelay: `${index * 50}ms` }"
-        class="page-view__card"
+        :subtitle="item.subtitle"
+        :meta="item.meta"
+        :badge="item.badge"
+        category="小说"
+        accent="var(--module-novel)"
+        :to="`/novels/reader/${item.id}`"
       />
-    </div>
-
-    <EmptyState
-      v-if="novelList.length === 0"
-      title="还没有小说"
-      description="点击右上角添加你的第一本小说"
-    >
-      <template #action>
-        <a-button type="primary" @click="showAddModal = true">
-          <template #icon><Plus :size="16" /></template>
-          添加小说
-        </a-button>
-      </template>
-    </EmptyState>
-
-    <div v-if="novelList.length > 0" class="page-view__pagination">
-      <a-pagination
-        v-model:current="currentPage"
-        :total="total"
-        :page-size="pageSize"
-        show-quick-jumper
-      />
-    </div>
+    </section>
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, onMounted } from 'vue';
-import PageTitle from '@/components/layout/PageTitle.vue';
-import SearchInput from '@/components/common/SearchInput.vue';
-import MediaCard from '@/components/common/MediaCard.vue';
-import EmptyState from '@/components/common/EmptyState.vue';
-import { BookOpen, Plus, Upload } from '@phosphor-icons/vue';
-
-const searchQuery = ref('');
-const activeStatus = ref('all');
-const currentPage = ref(1);
-const pageSize = ref(20);
-const total = ref(0);
-const showAddModal = ref(false);
-
-interface NovelItem {
-  id: number;
-  title: string;
-  author: string;
-  cover_url?: string;
-  status: 'unread' | 'reading' | 'completed';
-  progress: number;
-  rating: number;
-}
-
-const novelList = ref<NovelItem[]>([
-  { id: 1, title: '小说标题1', author: '作者1', status: 'reading', progress: 50, rating: 4 },
-  { id: 2, title: '小说标题2', author: '作者2', status: 'completed', progress: 100, rating: 5 },
-  { id: 3, title: '小说标题3', author: '作者3', status: 'unread', progress: 0, rating: 0 },
-]);
-
-const statusFilters = [
-  { label: '全部', value: 'all', count: 50 },
-  { label: '未读', value: 'unread', count: 12 },
-  { label: '阅读中', value: 'reading', count: 5 },
-  { label: '已读完', value: 'completed', count: 33 },
-];
-
-const handleImport = () => console.log('Import');
-onMounted(() => {});
-</script>
-
-<style lang="scss" scoped>
-.page-view {
-  max-width: 1400px;
-  margin: 0 auto;
-  
-  &__filters {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  
-  &__search {
-    max-width: 400px;
-  }
-  
-  &__status-tabs {
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    
-    :deep(.ant-tag) {
-      cursor: pointer;
-      border-radius: var(--radius-full);
-      transition: all var(--transition-fast);
-      
-      &:hover, &.is-active {
-        background: var(--color-novel-bg);
-        color: var(--color-novel);
-        border-color: var(--color-novel);
-      }
-    }
-  }
-  
-  &__grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-    gap: 20px;
-    margin-bottom: 32px;
-  }
-  
-  &__card {
-    animation: fadeInUp 0.4s ease-out both;
-  }
-  
-  &__pagination {
-    display: flex;
-    justify-content: center;
-    padding: 24px 0;
-  }
-}
-
-@keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-</style>

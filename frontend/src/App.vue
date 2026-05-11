@@ -1,50 +1,35 @@
-<template>
-  <ConfigProvider :theme="morandiTheme">
-    <RouterView v-slot="{ Component, route }">
-      <Transition name="page" mode="out-in">
-        <component :is="Component" :key="route.path" />
-      </Transition>
-    </RouterView>
-  </ConfigProvider>
-</template>
-
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { ConfigProvider } from 'ant-design-vue';
-import { RouterView } from 'vue-router';
-import { useThemeStore } from '@/stores/theme';
-import { useAuthStore } from '@/stores/auth';
-import { morandiTheme } from '@/theme';
+import { computed } from 'vue'
+import { RouterView, useRoute } from 'vue-router'
+import { buildAntdTheme } from './theme/antd'
+import { useThemeStore } from './stores/theme'
+import DefaultLayout from './layouts/DefaultLayout.vue'
+import AuthLayout from './layouts/AuthLayout.vue'
+import BlankLayout from './layouts/BlankLayout.vue'
 
-const themeStore = useThemeStore();
-const authStore = useAuthStore();
+type LayoutKey = 'default' | 'auth' | 'blank'
 
-onMounted(() => {
-  themeStore.init();
-  
-  if (authStore.isAuthenticated && !authStore.user) {
-    authStore.fetchUserInfo();
-  }
-});
+const layouts: Record<LayoutKey, typeof DefaultLayout> = {
+  default: DefaultLayout,
+  auth: AuthLayout,
+  blank: BlankLayout,
+}
+
+const route = useRoute()
+const themeStore = useThemeStore()
+
+const currentLayout = computed(() => {
+  const layout = (route.meta.layout as LayoutKey | undefined) ?? 'default'
+  return layouts[layout] ?? DefaultLayout
+})
+
+const antdTheme = computed(() => buildAntdTheme(themeStore.resolvedTheme === 'dark'))
 </script>
 
-<style lang="scss">
-#app {
-  min-height: 100vh;
-}
-
-.page-enter-active,
-.page-leave-active {
-  transition: opacity 0.25s ease, transform 0.25s ease;
-}
-
-.page-enter-from {
-  opacity: 0;
-  transform: translateY(10px);
-}
-
-.page-leave-to {
-  opacity: 0;
-  transform: translateY(-5px);
-}
-</style>
+<template>
+  <a-config-provider :theme="antdTheme">
+    <component :is="currentLayout">
+      <RouterView />
+    </component>
+  </a-config-provider>
+</template>
